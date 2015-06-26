@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<info>
+    <id>gpstracks</id>
+    <name>Gps Tracks</name>
+    <description>My first ownCloud app</description>
+    <licence>AGPL</licence>
+    <author>shi</author>
+    <version>0.0.3</version>
+    <namespace>GpsTracks</namespace>
+    <category>other</category>
+    <dependencies>
+        <owncloud min-version="8.0" />
+    </dependencies>
+</info>
