@@ -2,15 +2,15 @@
 
 namespace OCA\GpsTracks\Controller;
 
-use \Exception;
+use Exception;
 
-use \OCP\IRequest;
-use \OCP\AppFramework\Http;
-use \OCP\AppFramework\Http\DataResponse;
-use \OCP\AppFramework\Http\JsonResponse;
-use \OCP\AppFramework\Controller;
+use OCP\IRequest;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http\JsonResponse;
+use OCP\AppFramework\Controller;
 
-use \OCA\GpsTracks\Lib\GpsXML;
+use OCA\GpsTracks\Lib\GpsXML;
 
 class JsonController extends Controller {
 
@@ -21,20 +21,30 @@ class JsonController extends Controller {
 		$this->lib = $lib;
 	}
 
-	public function index($fileid){
-		return new JsonResponse($this->lib->getTrackInfo($fileid));
+	public function index() {
+		return new JsonResponse($this->lib->index());
 	}
-
+	public function trkinfo($trkid){
+		return new JsonResponse($this->lib->getTrackInfo($trkid));
+	}
 	public function segment($fileid, $segno) {
 		return new JsonResponse($this->lib->getSegment($fileid, $segno));
 	}
 
 	public function writedb($fileid, $segno) {
-		return new JsonResponse($this->lib->put_track($fileid, $segno));
+		return new JsonResponse($this->lib->putTrack($fileid, $segno));
+	}
+//	public function writeall() {
+//		return new JsonResponse($this->lib->refresh());
+//	}
+	public function findpoint($time){
+		/** @var epoch $time */
+		return new JsonResponse($this->lib->findPointFromTime($time));
 	}
 
 	public function test($foo){
-		return new JsonResponse($this->lib->test($foo));
+//		return new JsonResponse($this->lib->refresh($foo));
+		return new JsonResponse($this->lib->test('2015-06-11 09:36:15 JST'));
 //		return new JsonResponse(['test']);
 	}
 }

@@ -1,3 +1,6 @@
+<?php
+	print "hoge";
+?>
 <ul>
 	<li><a href="#">First level entry</a></li>
 	<li>

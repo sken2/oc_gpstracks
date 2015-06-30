@@ -17,13 +17,42 @@
  * The controller class has to be registered in the application.php file since
  * it's instantiated in there
  */
-return [
-	'routes' => [
-		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
-		['name' => 'json#index', 'url' => '/gpx/{fileid}', 'verb' => 'GET'],
-		['name' => 'json#segment', 'url' => '/gpx/{fileid}/{segno}', 'verb' => 'GET'],
-		['name' => 'json#writedb', 'url' => '/gpx/{fileid}/{segno}', 'verb' => 'POST' ],
-
-		['name' => 'json#test', 'url' => '/test/{foo}', 'verb' => 'GET' ],
-	]
-];
+return array(
+	'routes' => array(
+		array(
+			'name' => 'page#index',
+			'url' => '/',
+			'verb' => 'GET',
+		),
+		array(
+			'name' => 'json#index',
+			'url' => '/gpx',
+			'verb' => 'GET',
+		),
+		array(
+			'name' => 'json#trkinfo',
+			'url' => '/gpx/{trkid}',
+			'verb' => 'GET',
+		),
+		array(
+			'name' => 'json#segment',
+			'url' => '/gpx/{fileid}/{segno}',
+			'verb' => 'GET',
+		),
+//		array(
+//			'name' => 'json#writedb',
+//			'url' => '/gpx/{fileid}/{segno}',
+//			'verb' => 'POST',
+//		),
+		array(
+			'name' => 'json#findpoint',
+			'url' => '/gpxmatch/{time}',
+			'verb' => 'GET',
+		),
+		array(
+			'name' => 'json#test',
+			'url' => '/test/{foo}',
+			'verb' => 'GET',
+		),
+	),
+);

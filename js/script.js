@@ -11,6 +11,7 @@
 (function ($, OC) {
 
 	$(document).ready(function () {
+		
 		$('button[name=get26]').click(function(){
 			var url = OC.generateUrl('/apps/gpstracks/gpx/26');
 			var data = {};
@@ -39,6 +40,16 @@
 				console.log(xhr);
 			});
 		});
+		$('#app tbody').click(function(evt){
+			var id = evt.target.getAttribute('trkid');
+			var url = OC.generateUrl('/apps/gpstracks/gpx/'+id);
+console.log(url);
+			$.get(url, {}).done(function(res){
+				console.log(res);
+			}).fail(function(xhr){
+				console.log(xhr);
+			});
+		});
 //OSM
 //		(function() {
 //			var map = new OpenLayers.Map("canvas");
@@ -52,6 +63,26 @@
 //				);	
 //			map.setCenter(lonLat, 15);
 //		})();
+		function tracklist(){
+			var url = OC.generateUrl('/apps/gpstracks/gpx');
+			$.get(url, {}).done(function(trk){
+				$('#app tbody').each(function () {
+					while(this.firstChild){
+						this.removeChild(this.firstChild);
+					}
+				});
+				trk.forEach(function(trkinfo){
+					var tr = document.createElement('TR');
+					tr.appendChild(document.createTextNode(trkinfo.name));
+					tr.setAttribute('trkid', trkinfo.id);
+					$('#app tbody').append(tr);
+				});
+				console.log(trk);
+			}).fail(function(xhr){
+				console.log("Ajax to "+url+" failed");
+			});
+		}
+		tracklist();
 	});
 
 })(jQuery, OC);

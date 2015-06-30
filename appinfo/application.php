@@ -2,14 +2,14 @@
 
 namespace OCA\GpsTracks\AppInfo;
 
-use \OCP\AppFramework\App;
-//use \OCP\Files\Folder;
+use OCP\AppFramework\App;
+//use OCP\Files\Folder;
 
-use \OCA\GpsTracks\Controller\PageController;
-use \OCA\GpsTracks\Controller\JsonController;
-use \OCA\GpsTracks\Controller\TestController;//!
+use OCA\GpsTracks\Controller\PageController;
+use OCA\GpsTracks\Controller\JsonController;
+use OCA\GpsTracks\Controller\TestController;//!
 
-use \OCA\GpsTracks\Lib\GpsXML;
+use OCA\GpsTracks\Lib\GpsXML;
 
 class Applicaton extends App {
 
@@ -32,8 +32,6 @@ class Applicaton extends App {
 				$c->query('AppName'),
 				$c->query('UserId'),
 				$c->query('ServerContainer')->getDbConnection()
-//				$c->query('ServerContainer')->getDb()
-//				$c->query('RootView')
 			);
 		});
 

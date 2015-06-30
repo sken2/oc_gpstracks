@@ -2,8 +2,8 @@
 
 namespace OCA\GpsTracks\Lib;
 
-use \OCP\IDb;
-use \OCP\IDbConnection;
+use OCP\IDb;
+use OCP\IDbConnection;
 
 class TestService {
 

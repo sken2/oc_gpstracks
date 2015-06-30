@@ -1,7 +1,7 @@
 <?php
 namespace OCA\GpsTracks\Lib;
 
-use \OC\Files\Fileinfo;
+use OC\Files\Fileinfo;
 
 class GpxDOM extends \DOMDocument{
 
@@ -28,7 +28,7 @@ class GpxDOM extends \DOMDocument{
 
 	public function get_track_number(){
 		$root=$this->firstChild;
-		for($i=0; $this->lookup_node($root, "trk", $i);$i++){
+		for($i = 0; $this->lookup_node($root, "trk", $i); $i++){
 
 		}
 		return $i;

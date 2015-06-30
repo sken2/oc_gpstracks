@@ -2,16 +2,16 @@
 
 namespace OCA\GpsTracks\Controller;
 
-use \Exception;
+use Exception;
 
-use \OCP\IRequest;
-use \OCP\AppFramework\Http;
-use \OCP\AppFramework\Http\DataResponse;
-use \OCP\AppFramework\Http\JsonResponse;
-use \OCP\AppFramework\Controller;
+use OCP\IRequest;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http\JsonResponse;
+use OCP\AppFramework\Controller;
 
-use \OCA\GpsTracks\Lib\GpsXML;
-use \OCA\GpsTracks\Lib\TestService;
+use OCA\GpsTracks\Lib\GpsXML;
+use OCA\GpsTracks\Lib\TestService;
 
 class TestController extends Controller {
 
