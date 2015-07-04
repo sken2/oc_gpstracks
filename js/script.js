@@ -32,7 +32,7 @@
 		});
 
 		$('button[name=test]').click(function() {
-			var url = OC.generateUrl('/apps/gpstracks/test/1435031254');
+			var url = OC.generateUrl('/apps/gpstracks/test/11');
 			var data = {};
 			$.get(url, data).done(function(res){
 				console.log(res);

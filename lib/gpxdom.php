@@ -54,6 +54,32 @@ class GpxDOM extends \DOMDocument{
 		return $points;
 	}
 
+	public function create_track($track, $points){
+
+		$gpx = $this->firstChild;
+		if(!$gpx) {
+			$gpx = $this->createElement('gpx');
+			$this->appendChild($gpx);
+			$gpx->setAttribute('version', '1.1');
+		}
+
+		$trk = $this->createElement('trk');
+		$trk->setAttribute('name', $track->name);
+		$gpx->appendChild($trk);
+		
+		$trkseg = $this->createElement('trkseg');
+		$trk->appendChild($trkseg);
+
+		foreach ($points as $point) {
+			if(!$point->lat or !$point->lon) {
+				continue;
+			}
+			$trkpt = $this->build_point($point);
+			$trkseg->appendChild($trkpt);
+		}
+		return true;
+	}
+
 	protected function decode_point($point_node){
 		$t=array();
 		$t['lat']=(float)$point_node->getAttribute('lat');
@@ -82,6 +108,25 @@ class GpxDOM extends \DOMDocument{
 			}
 		}
 		return false;
+	}
+
+	protected function build_point($point) {
+		
+		$p = $this->createElement('trkpt');
+		$p->setAttribute('lat', $point->lat);
+		$p->setAttribute('lon', $point->lon);
+		if($point->time instanceof \DateTime) {
+			$p->setAttribute('time', $point->time->format('Z'));
+		} else {
+			$p->setAttribute('time', $point->time);
+		}
+		if($point->ele) {
+			$p->setAttribute('ele', $point->ele);
+		}
+		if($point->speed) {
+			$p->setAttribute('speed', $point->speed);
+		}
+		return $p;
 	}
 
 	protected function trim_crlf($here=null){

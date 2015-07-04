@@ -44,7 +44,7 @@ class JsonController extends Controller {
 
 	public function test($foo){
 //		return new JsonResponse($this->lib->refresh($foo));
-		return new JsonResponse($this->lib->test('2015-06-11 09:36:15 JST'));
+		return new JsonResponse($this->lib->test($foo));
 //		return new JsonResponse(['test']);
 	}
 }

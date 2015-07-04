@@ -120,21 +120,6 @@ public function getTrackInfo($id) {
 		return $points;
 		
 	}
-//	public function getTrackInfo($id){
-//		$DOM = $this->idtoDom($id);
-//		$tracks = $DOM->get_track_number();
-//		$t = array();
-//		for($i = 0; $i < $tracks ; $i++) {
-//			$points = $DOM->get_tracks($i) ;
-//			if ($points === 0) {
-//				continue;
-//			}
-//			$end = end($points)['time'];
-//			$start = reset($points)['time'];
-//			$t[] = array($i, $start, $end) ;
-//		}
-//		return array($t);
-//	}
 
 	public function getSegment($id, $seg) {
 		$DOM = $this->idtoDom($id);
@@ -158,9 +143,12 @@ public function getTrackInfo($id) {
 				.' returning *';
 			$trk_st=$this->db->prepare($sql);
 			$name = $DOM->get_trackname($seg);
-			$now=date('U');
+//			$now=date('U');
+			$now = new \DateTime();
+			$now = $now->format(\DateTime::ISO8601);
 			$trk_st->bindValue(1, $name, \PDO::PARAM_STR);
-			$trk_st->bindValue(2, $now, \PDO::PARAM_INT);
+//			$trk_st->bindValue(2, $now, \PDO::PARAM_INT);
+			$trk_st->bindValue(2, $now);
 			$trk_st->bindValue(3, $this->userId, \PDO::PARAM_STR);
 			$trk_st->bindValue(4, $fileid, \PDO::PARAM_INT);
 			$trk_st->execute();
@@ -174,9 +162,12 @@ public function getTrackInfo($id) {
 				.' values (?, ?, ?, ?, ?, ?);';
                         $pos_st=$this->db->prepare($sql);
                         foreach($DOM->get_tracks($seg) as $pos){
+				$time = \DateTime::createFromFormat('U', $pos['time']);
+				$time = $time->format(\DateTime::ISO8601);
 				$pos_st->bindValue(1, $pos['lat']);
 				$pos_st->bindValue(2, $pos['lon']);
-				$pos_st->bindValue(3, $pos['time'], \PDO::PARAM_INT);
+//				$pos_st->bindValue(3, $pos['time'], \PDO::PARAM_INT);
+				$pos_st->bindValue(3, $time);
 				$pos_st->bindValue(4, $pos['ele']);
 				$pos_st->bindValue(5, $pos['speed']);
 				$pos_st->bindValue(6, $track_id, \PDO::PARAM_INT);
@@ -251,7 +242,7 @@ public function getTrackInfo($id) {
 			."be as (SELECT t.t - interval $intspec as b, t.t + interval $intspec as e"
 			." from t)"
 			."SELECT p.* FROM *PREFIX*gpx_points p, *PREFIX*gpx_tracks tr, be"
-			." WHERE to_timestamp(p.time) BETWEEN be.b AND be.e"
+			." WHERE p.time BETWEEN be.b AND be.e"
 			." AND tr.user_id = ?"
 			." AND tr.id = p.track_id"
 			." ORDER by p.time asc";
@@ -264,13 +255,38 @@ public function getTrackInfo($id) {
 		return $r;
 	}
 
+	public function getXml($id) {
+		$sql = "select * from *PREFIX*gpx_tracks"
+			." WHERE id = ?"
+			." AND user_id = ?";
+		$prep = $this->db->prepare($sql);
+		$prep->bindValue(1, $id, \PDO::PARAM_INT);
+		$prep->bindValue(2, $this->userId);
+		$prep->execute();
+		$trk = $prep->fetch(\PDO::FETCH_OBJ);
+		if(!$trk) {
+			throw new \Exception('UUPS');
+		}
+		$sql = "select * from *PREFIX*gpx_points"
+			." WHERE track_id = ?"
+			." ORDER by time";
+		$prep = $this->db->prepare($sql);
+		$prep->bindValue(1, $id, \PDO::PARAM_INT);
+		$prep->execute();
+		$points = $prep->fetchAll(\PDO::FETCH_OBJ);
+		$X = new gpxDOM();
+		$X->create_track($trk, $points);
+		return $X->saveXML();
+	}
+
 	protected function mintointerval($min) {
 		return "'".$min." mins'";
 	}
 	/**
 	 * stubb for UI debugging
 	 */
-	public function test($name){
+	public function test($id){
+		return $this->getXml($id);	
 		return $this->isIdentical($name);
 //		return array('hoge');
 	}

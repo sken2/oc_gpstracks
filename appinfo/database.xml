@@ -24,9 +24,7 @@
    </field> 
    <field>
     <name>ctime</name>
-    <type>integer</type>
-    <default></default>
-    <length>8</length>
+    <type>timestamp</type>
     <notnull>true</notnull>
    </field>
    <field>
@@ -82,9 +80,8 @@
    </field>
    <field>
     <name>time</name>
-    <type>integer</type>
+    <type>timestamp</type>
     <notnull>true</notnull>
-    <length>8</length>
    </field>
    <field>
     <name>track_id</name>
