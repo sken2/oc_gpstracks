@@ -12,24 +12,25 @@
 
 	$(document).ready(function () {
 		
-		$('button[name=get26]').click(function(){
-			var url = OC.generateUrl('/apps/gpstracks/gpx/26');
-			var data = {};
-			$.get(url, data).done(function(res){
-				console.log(res);
-			}).fail(function(xhr){
-				console.log(xhr);
-			});
-		});
-		$('button[name=get261]').click(function(){
-			var url = OC.generateUrl('/apps/gpstracks/gpx/26/0');
-			var data = {};
-			$.ajax({url:url, data:data, type:'post'}).done(function(res){
-				console.log(res);
-			}).fail(function(xhr){
-				console.log(xhr);
-			});
-		});
+//		$('button[name=get26]').click(function(){
+//			var url = OC.generateUrl('/apps/gpstracks/gpx/26');
+//			var data = {};
+//			$.get(url, data).done(function(res){
+//				console.log(res);
+//			}).fail(function(xhr){
+//				console.log(xhr);
+//			});
+//		});
+//
+//		$('button[name=get261]').click(function(){
+//			var url = OC.generateUrl('/apps/gpstracks/gpx/26/0');
+//			var data = {};
+//			$.ajax({url:url, data:data, type:'post'}).done(function(res){
+//				console.log(res);
+//			}).fail(function(xhr){
+//				console.log(xhr);
+//			});
+//		});
 
 		$('button[name=test]').click(function() {
 			var url = OC.generateUrl('/apps/gpstracks/test/11');
@@ -40,29 +41,19 @@
 				console.log(xhr);
 			});
 		});
+
 		$('#app tbody').click(function(evt){
 			var id = evt.target.getAttribute('trkid');
 			var url = OC.generateUrl('/apps/gpstracks/gpx/'+id);
 console.log(url);
-			$.get(url, {}).done(function(res){
-				console.log(res);
-			}).fail(function(xhr){
-				console.log(xhr);
-			});
+//			$.get(url, {}).done(function(res){
+//				console.log(res);
+				dispTrack(id);
+//			}).fail(function(xhr){
+//				console.log(xhr);
+//			});
 		});
-//OSM
-//		(function() {
-//			var map = new OpenLayers.Map("canvas");
-//			var mapnik = new OpenLayers.Layer.OSM();
-//			map.addLayer(mapnik);
-//
-//			var lonLat = new OpenLayers.Lonlat(139.76, 35.68)
-//				.transform(
-//					new OpenLayers.Projection("EPSG:4326"),
-//					new OpenLayers.Projection("EPSG:900913")
-//				);	
-//			map.setCenter(lonLat, 15);
-//		})();
+
 		function tracklist(){
 			var url = OC.generateUrl('/apps/gpstracks/gpx');
 			$.get(url, {}).done(function(trk){
@@ -84,5 +75,21 @@ console.log(url);
 		}
 		tracklist();
 	});
+	function dispTrack(id) {
+		if(!OCA.OwnLayer) {
+			alert('No Ownlayer');
+			return ;
+		}
+		var url = OC.generateUrl('/apps/gpstracks/gpx/'+id);
+		var track = new ol.source.Vector({//!
+			url: url,
+			format: new ol.format.GPX()
+		});
+		var vector = new ol.layer.Vector({
+			source: track
+		});
+		OCA.OwnLayer.open();
+		OCA.OwnLayer.Map.addLayer(vector);
+	}
 
 })(jQuery, OC);

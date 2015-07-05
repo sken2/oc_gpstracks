@@ -25,6 +25,16 @@ return array(
 			'verb' => 'GET',
 		),
 		array(
+			'name' => 'page#tracklist',
+			'url' => '/tracklist',
+			'verb' => 'GET',
+		),
+		array(
+			'name' => 'page#gpxlist',
+			'url' => '/gpxlist',
+			'verb' => 'GET',
+		),
+		array(
 			'name' => 'json#index',
 			'url' => '/gpx',
 			'verb' => 'GET',

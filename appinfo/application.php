@@ -48,18 +48,18 @@ class Applicaton extends App {
 			);
 		});
 
-		$container->registerService('TestService', function($c) {
-			return new TestService(
-				$c->query('ServerContainer')->getDbConnection()
-			);
-		});
-		$container->registerService('TestController', function($c){
-			return new TestController(
-				$c->query('AppName'),
-				$c->query('UserId'),
-				$c->query('Request'),
-				$c->query('TestService')
-			);
-		});
+//		$container->registerService('TestService', function($c) {
+//			return new TestService(
+//				$c->query('ServerContainer')->getDbConnection()
+//			);
+//		});
+//		$container->registerService('TestController', function($c){
+//			return new TestController(
+//				$c->query('AppName'),
+//				$c->query('UserId'),
+//				$c->query('Request'),
+//				$c->query('TestService')
+//			);
+//		});
 	}
 }

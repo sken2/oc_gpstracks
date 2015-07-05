@@ -24,24 +24,49 @@ class JsonController extends Controller {
 	public function index() {
 		return new JsonResponse($this->lib->index());
 	}
+	/**
+	 * !!why comment change beheibour ? this idea suck.
+	 * and i controll secutiry check myself
+	 * @NoCSRFRequired
+	 */
 	public function trkinfo($trkid){
-		return new JsonResponse($this->lib->getTrackInfo($trkid));
+		return new DataResponse($this->lib->getXml($trkid));
 	}
+	/**
+	 *
+	 * @NoCSRFRequired
+	 */
 	public function segment($fileid, $segno) {
 		return new JsonResponse($this->lib->getSegment($fileid, $segno));
 	}
 
+	/**
+	 *
+	 * @NoCSRFRequired
+	 */
 	public function writedb($fileid, $segno) {
 		return new JsonResponse($this->lib->putTrack($fileid, $segno));
 	}
+	/**
+	 *
+	 * @NoCSRFRequired
+	 */
 //	public function writeall() {
 //		return new JsonResponse($this->lib->refresh());
 //	}
+	/**
+	 *
+	 * @NoCSRFRequired
+	 */
 	public function findpoint($time){
 		/** @var epoch $time */
 		return new JsonResponse($this->lib->findPointFromTime($time));
 	}
 
+	/**
+	 *
+	 * @NoCSRFRequired
+	 */
 	public function test($foo){
 //		return new JsonResponse($this->lib->refresh($foo));
 		return new JsonResponse($this->lib->test($foo));

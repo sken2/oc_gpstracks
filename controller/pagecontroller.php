@@ -41,13 +41,10 @@ class PageController extends Controller {
 		return new TemplateResponse('gpstracks', 'main', $params);  // templates/main.php
 	}
 
-	/**
-	 * Simply method that posts back the payload of the request
-	 * @NoAdminRequired
-	 */
-	public function doEcho($echo) {
-		return new DataResponse(['echo' => $echo]);
+	public function tracklist() {
+		return new DataResponse('hoge');
 	}
-
-
+	public function gpxlist() {
+		return new DataResponse('hogegps');
+	}
 }
