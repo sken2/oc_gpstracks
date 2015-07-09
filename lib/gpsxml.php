@@ -10,6 +10,7 @@ use OC\Files\Fileinfo;
 use OCP\IDb;
 use OCP\IDbConnection;
 
+use OCA\OwnLayer\Lib\GeoJSON;
 use OCA\GpsTracks\Lib\GpxDOM;
 
 class GpsXML {
@@ -36,7 +37,7 @@ class GpsXML {
 		if($order !== 'asc') {
 			$order = 'desc';
 		}
-		$this->refresh();
+//		$this->refresh();
 
 		$sql = "SELECT * from *PREFIX*gpx_tracks"
 			." WHERE user_id = ?"
@@ -117,8 +118,7 @@ public function getTrackInfo($id) {
 		$prep->bindValue(2, $this->userId);
 		$prep->execute();
 		$points = $prep->fetchAll(\PDO::FETCH_OBJ);
-		return $points;
-		
+		return $this->pointsToGeoJSON($points);
 	}
 
 	public function getSegment($id, $seg) {
@@ -251,8 +251,19 @@ public function getTrackInfo($id) {
 		$prep->bindValue(2, $this->userId);
 		$prep->execute();
 		$r = $prep->fetchAll(\PDO::FETCH_OBJ);
+		return $this->pointsToGeoJSON($r);
+	}
+	protected function mintointerval($min) {
+		return "'".$min." mins'";
+	}
 
-		return $r;
+	protected function pointsToGeoJSON($points) {
+		$pts = array();
+		foreach ($points as $point) {
+			$pts[] = array($point->lon, $point->lat);
+		}
+		$mpt = new GeoJSON('MultiPoint', $pts);
+		return $mpt;
 	}
 
 	public function getXml($id) {
@@ -279,15 +290,50 @@ public function getTrackInfo($id) {
 		return $X->saveXML();
 	}
 
-	protected function mintointerval($min) {
-		return "'".$min." mins'";
+	public function getMovingAmount($id, $span = 600) {
+		$int = '1 min';//!
+		$sql =" with be as (select date_trunc('min', min(time)) as b, max(time) as e"
+			." from *PREFIX*gpx_points where track_id =?),"
+
+			."grid as (select generate_series(be.b, be.e, '$int')as st from be)"
+			."select grid.st as time, avg(p.lat) as lat, avg(p.lon) as lon,"
+			."avg(p.ele) as ele, avg(p.speed) as speed"
+			." from *PREFIX*gpx_points p, *PREFIX*gpx_tracks tr, grid "
+			." where p.track_id=12"
+			." and tr.user_id = ? and p.track_id = tr.id"
+			." and p.time between grid.st and grid.st + interval '$int'"
+			." group by grid.st order by grid.st asc";
+		$prep = $this->db->prepare($sql);
+		$prep->bindValue(1, $id, \PDO::PARAM_INT);
+		$prep->bindValue(2, $this->userId);
+		$prep->execute();
+		$r = $prep->fetchAll(\PDO::FETCH_OBJ);
+
+//		$prev = null;
+//		foreach($r as $point) {
+//			if(!$prev) {
+//				$prev = $point;
+//				$point->dist = 0.0;
+//			} else {
+//				$oo = ((float)$prev.lon - (float)$point.lon);
+//				$oa = ((float)$prev.lat - (float)$point.lat);
+//				$point->dist = sqrt($oo*$oo + $oa*$oa);
+////				$point->dist = $prev->lat - $point->lat;
+//				$prev = $point;
+//			}
+//		}
+		return $this->pointsToGeoJSON($r);
+	}
+	public function getPointsGsoJSON($id) {
+
 	}
 	/**
 	 * stubb for UI debugging
 	 */
 	public function test($id){
-		return $this->getXml($id);	
-		return $this->isIdentical($name);
+		return $this->getMovingAmount(12);
+//		return $this->getXml($id);	
+//		return $this->isIdentical($name);
 //		return array('hoge');
 	}
 
