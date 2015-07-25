@@ -49,7 +49,9 @@ class GpxDOM extends \DOMDocument{
 		
 		for($i=0; $i<$trkseg->childNodes->length; $i++){
 			$trkpt=$trkseg->childNodes->item($i);
-			$points[]=$this->decode_point($trkpt);
+			if(($t = $this->decode_point($trkpt))) {
+				$points[]=$t;
+			}
 		}
 		return $points;
 	}
@@ -84,6 +86,9 @@ class GpxDOM extends \DOMDocument{
 		$t=array();
 		$t['lat']=(float)$point_node->getAttribute('lat');
 		$t['lon']=(float)$point_node->getAttribute('lon');
+		if(is_NaN($t['lat']) or is_NaN($t['lon'])) {
+			return false;
+		}
 		$timestr=$this->lookup_node($point_node, 'time')->nodeValue;
 		$D=new \DateTime($timestr);
 		$t['time']=(int) $D->format('U');

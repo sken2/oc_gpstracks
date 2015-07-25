@@ -24,8 +24,12 @@ class JsonController extends Controller {
 	public function index() {
 		return new JsonResponse($this->lib->index());
 	}
+	public function refresh() {
+		return new JsonResponse($this->lib->refresh());
+	}
 	public function trkinfo($trkid){
-		return new DataResponse($this->lib->getTrackInfo($trkid));
+//		return new DataResponse($this->lib->getTrackInfo($trkid));
+		return new DataResponse($this->lib->getMovingAmount($trkid));
 	}
 	public function segment($fileid, $segno) {
 		return new JsonResponse($this->lib->getSegment($fileid, $segno));

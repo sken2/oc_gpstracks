@@ -3,7 +3,6 @@
 namespace OCA\GpsTracks\AppInfo;
 
 use OCP\AppFramework\App;
-//use OCP\Files\Folder;
 
 use OCA\GpsTracks\Controller\PageController;
 use OCA\GpsTracks\Controller\JsonController;
@@ -19,14 +18,18 @@ class Applicaton extends App {
 
 		$container = $this->getContainer();
 
-		$container->registerService('RootView', function ($c) {
-			return \OC\files::getView();
+//		$container->registerService('RootView', function ($c) {
+//			return \OC\files::getView();
+//		});
+		$container->registerService('PageController', function ($c) {
+			return new PageController(
+				$c->query('AppName'),
+				$c->query('UserId'),
+				$c->query('Request'),
+				$c->query('ServerContainer')->getUserFolder()
+			);
 		});
 
-//		$container->registerService('Dbo', function ($c) {
-//			return $c->query('ServerContainer')->getDb();
-//		});
-//
 		$container->registerService('GpsXML', function ($c) {
 			return new GpsXML(
 				$c->query('AppName'),

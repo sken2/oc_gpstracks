@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * you need PostGis to run this library
+ *
+ */
+
 namespace OCA\GpsTracks\Lib;
 
 use OC\Files\Node;
@@ -30,7 +35,6 @@ class GpsXML {
 		$this->appname = $AppName;
 		$this->userId = $UserId;
 		$this->db = $db;
-
 	}
 
 	public function index($order = 'asc') {
@@ -163,7 +167,11 @@ public function getTrackInfo($id) {
                         $pos_st=$this->db->prepare($sql);
                         foreach($DOM->get_tracks($seg) as $pos){
 				$time = \DateTime::createFromFormat('U', $pos['time']);
-				$time = $time->format(\DateTime::ISO8601);
+				if($time) {
+					$time = $time->format(\DateTime::ISO8601);
+				} else {
+					//TODO write to log
+				}
 				$pos_st->bindValue(1, $pos['lat']);
 				$pos_st->bindValue(2, $pos['lon']);
 //				$pos_st->bindValue(3, $pos['time'], \PDO::PARAM_INT);
@@ -205,7 +213,6 @@ public function getTrackInfo($id) {
 		} catch (\PDOException $e) {//!
 			$this->db->rollback();
 			throw $e;
-//return 'oops';
 		}
 		return true;
 	}
@@ -220,7 +227,6 @@ public function getTrackInfo($id) {
 	}
 
 	protected function isIdentical($name) {
-//		$name = $DOM->get_trackname($seg);
 		$sql = "SELECT count(id) from *PREFIX*gpx_tracks"
 			." WHERE name = ?"
 			." AND user_id = ?";
@@ -257,6 +263,10 @@ public function getTrackInfo($id) {
 		return "'".$min." mins'";
 	}
 
+	/**
+	 * @param [ coordinate ]
+	 * @return class GeoJSON(type:'MultiPoint')
+	 */
 	protected function pointsToGeoJSON($points) {
 		$pts = array();
 		foreach ($points as $point) {
@@ -290,38 +300,65 @@ public function getTrackInfo($id) {
 		return $X->saveXML();
 	}
 
-	public function getMovingAmount($id, $span = 600) {
+	public function getMovingAmount($id, $span = 60) {
 		$int = '1 min';//!
+//		$int = $this->secToMin($span);
 		$sql =" with be as (select date_trunc('min', min(time)) as b, max(time) as e"
 			." from *PREFIX*gpx_points where track_id =?),"
 
-			."grid as (select generate_series(be.b, be.e, '$int')as st from be)"
-			."select grid.st as time, avg(p.lat) as lat, avg(p.lon) as lon,"
-			."avg(p.ele) as ele, avg(p.speed) as speed"
+			."grid as (select generate_series(be.b, be.e, '$int')as st from be),"
+			."avg as (select grid.st as time, avg(p.lat) as lat, avg(p.lon) as lon,"
+			."avg(p.ele) as ele, avg(p.speed) as speed,"
+			."ST_SetSRID(ST_Point(avg(lon), avg(lat)), 4326) as point"
 			." from *PREFIX*gpx_points p, *PREFIX*gpx_tracks tr, grid "
-			." where p.track_id=12"
+			." where p.track_id=?"
 			." and tr.user_id = ? and p.track_id = tr.id"
 			." and p.time between grid.st and grid.st + interval '$int'"
-			." group by grid.st order by grid.st asc";
+			." group by grid.st)"
+			." select avg.* from avg, avg next"
+			." WHERE "
+			."ST_Distance(ST_Transform(avg.point, 3587), ST_Transform(next.point, 3587)) > 10"//10m per 1min = 600m per hour
+//"(abs(avg.lon-next.lon)>0.0002 or abs(avg.lat-next.lat)>0.0002)"
+			." and avg.time + interval '1 min' = next.time order by avg.time asc";
 		$prep = $this->db->prepare($sql);
 		$prep->bindValue(1, $id, \PDO::PARAM_INT);
-		$prep->bindValue(2, $this->userId);
+		$prep->bindValue(2, $id, \PDO::PARAM_INT);
+		$prep->bindValue(3, $this->userId);
 		$prep->execute();
 		$r = $prep->fetchAll(\PDO::FETCH_OBJ);
 
-//		$prev = null;
-//		foreach($r as $point) {
-//			if(!$prev) {
-//				$prev = $point;
-//				$point->dist = 0.0;
-//			} else {
-//				$oo = ((float)$prev.lon - (float)$point.lon);
-//				$oa = ((float)$prev.lat - (float)$point.lat);
-//				$point->dist = sqrt($oo*$oo + $oa*$oa);
-////				$point->dist = $prev->lat - $point->lat;
-//				$prev = $point;
-//			}
-//		}
+		return $this->pointsToGeoJSON($r);
+	}
+
+	protected function secToMin($span) {
+		switch (true) {
+		case !is_numeric($span):
+		case $span<=0 :
+			$span = 1;
+			break;
+		default:
+			$span = floor($span/60);
+		}
+		return "$span min";
+	}
+	/**
+	 * @param int $id
+	 * $param int $start(start time in epoch)
+	 * $param int $end(end time in epoch)
+	 */
+	public function getTrackPartFromTime($id, $start, $end){
+		$sql = "SELECT * from *PREFIX*gpx_tracks tr, *PREFIX*gpx_points p"
+			." WHERE p.time between to_timestamp(?) and to_timestamp(?)"
+			." AND p.track_id = ?"
+			." AND tr.user_id = ?"
+			." AND tr.id = p.track_id";
+		$prep = $this->db->prepare($sql);
+		$prep->bindValue(1, $start, \PDO::PARAM_INT);
+		$prep->bindValue(2, $end, \PDO::PARAM_INT);
+		$prep->bindValue(3, $id, \PDO::PARAM_INT);
+		$prep->bindValue(4, $this->userId, \PDO::PARAM_STR);
+		$prep->execute();
+		$r = $prep->fetchAll(\PDO::FETCH_OBJ);
 		return $this->pointsToGeoJSON($r);
 	}
 	public function getPointsGsoJSON($id) {
@@ -331,10 +368,31 @@ public function getTrackInfo($id) {
 	 * stubb for UI debugging
 	 */
 	public function test($id){
-		return $this->getMovingAmount(12);
+return $this->secToMin(300);
+//		return $this->getMovingAmount(25);
+//		return $this->getTrackPartFromTime(12,  1436347500,1436349000);
 //		return $this->getXml($id);	
 //		return $this->isIdentical($name);
 //		return array('hoge');
 	}
 
+/*
+with
+ be as (select date_trunc('min', min(time))  as b, max(time) as e
+  from oc_gpx_points where track_id = 25),
+ 
+grid as (select generate_series(be.b, be.e, '1 min')as st from be),
+avg as (select ST_SetSRID(ST_Point(avg(lon), avg(lat)), 4326) as point, grid.st as time
+from oc_gpx_points p, oc_gpx_tracks tr,grid
+where p.track_id = 25
+and p.track_id = tr.id
+and tr.user_id ='shi'
+and p.time between grid.st and grid.st + interval '1 min'
+group by grid.st)
+select avg.time, ST_Distance(ST_Transform(avg.point, 3587), ST_Transform(next.point, 3587))
+ from avg, avg next
+ where avg.time + interval '1 min' = next.time
+ order by avg.time
+*/
 }
+

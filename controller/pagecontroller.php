@@ -15,15 +15,19 @@ use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
+use OC\Files\Filesystem;
+
+use OCA\GpsTracks\Lib\GpsXML;
 
 class PageController extends Controller {
 
-
 	private $userId;
+	private $storage;
 
-	public function __construct($AppName, IRequest $request, $UserId){
+	public function __construct($AppName, $UserId, IRequest $request, Filesystem $Storage){
 		parent::__construct($AppName, $request);
 		$this->userId = $UserId;
+		$this->storage = $Storage;
 	}
 
 	/**
@@ -39,12 +43,5 @@ class PageController extends Controller {
 	public function index() {
 		$params = ['user' => $this->userId];
 		return new TemplateResponse('gpstracks', 'main', $params);  // templates/main.php
-	}
-
-	public function tracklist() {
-		return new DataResponse('hoge');
-	}
-	public function gpxlist() {
-		return new DataResponse('hogegps');
 	}
 }

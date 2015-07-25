@@ -25,30 +25,25 @@ return array(
 			'verb' => 'GET',
 		),
 		array(
-			'name' => 'page#tracklist',
-			'url' => '/tracklist',
-			'verb' => 'GET',
-		),
-		array(
-			'name' => 'page#gpxlist',
-			'url' => '/gpxlist',
-			'verb' => 'GET',
-		),
-		array(
 			'name' => 'json#index',
 			'url' => '/gpx',
 			'verb' => 'GET',
+		),
+		array(
+			'name' => 'json#refresh',
+			'url' => '/gpx',
+			'verb' => 'POST',
 		),
 		array(
 			'name' => 'json#trkinfo',
 			'url' => '/gpx/{trkid}',
 			'verb' => 'GET',
 		),
-		array(
-			'name' => 'json#segment',
-			'url' => '/gpx/{fileid}/{segno}',
-			'verb' => 'GET',
-		),
+//		array(
+//			'name' => 'json#segment',
+//			'url' => '/gpx/{fileid}/{segno}',
+//			'verb' => 'GET',
+//		),
 //		array(
 //			'name' => 'json#writedb',
 //			'url' => '/gpx/{fileid}/{segno}',
